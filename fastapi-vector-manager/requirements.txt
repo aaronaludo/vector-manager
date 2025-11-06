@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+SQLAlchemy
+psycopg2-binary
+pgvector
+python-dotenv
+pydantic
+pydantic-settings
+google-generativeai
+alembic
