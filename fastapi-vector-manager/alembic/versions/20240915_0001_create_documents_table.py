@@ -16,7 +16,7 @@ def upgrade() -> None:
     op.create_table(
         "documents",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("title", sa.String(), nullable=False),
+        sa.Column("title", sa.String(), nullable=True),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("embedding", pgvector.sqlalchemy.Vector(768), nullable=False),
         sa.PrimaryKeyConstraint("id"),

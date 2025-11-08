@@ -24,6 +24,7 @@ def create_document(
     document = Document(
         title=document_in.title,
         content=document_in.content,
+        metadata=document_in.metadata,
         embedding=embedding,
     )
     db.add(document)
@@ -63,6 +64,8 @@ def update_document(
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)
             ) from exc
+    if "metadata" in document_in.model_fields_set:
+        document.metadata = document_in.metadata
 
     db.add(document)
     db.commit()

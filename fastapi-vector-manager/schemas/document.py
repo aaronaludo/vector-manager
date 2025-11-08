@@ -1,22 +1,24 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict
 
 
 class DocumentBase(BaseModel):
-    title: str
+    title: Optional[str] = None
     content: str
+    metadata: Optional[Dict[str, Any]] = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class DocumentCreate(DocumentBase):
-    pass
+    title: str
 
 
 class DocumentUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
     model_config = ConfigDict(from_attributes=True)
 
