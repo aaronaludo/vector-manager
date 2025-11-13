@@ -33,6 +33,7 @@ Response contains the stored asset identifiers plus a base64-encoded copy of the
 
 `POST /protection/detect`
 
-- Upload any PNG/JPEG/WebP (for example a file previously returned from the `/protection/upload` endpoint).  
-- The service recomputes the SHA-256 and pHash to find a matching record and responds with `watermark_detected`, `invisible_watermark_detected`, `encrypted_watermark_detected`, and the stored metadata (encrypted watermark ID, hashes, image link, etc.).  
-- If no match is found, all detection flags are `false` and the response explains that no protected asset was located.
+- Upload the protected PNG from `static/protected/<uuid>.png` (or the `watermarked_image_b64` output saved locally).  
+- Detection now requires an exact SHA-256 match, so unprotected “original” images correctly report `watermark_detected = false`.  
+- When a match is found the API responds with `watermark_detected`, `invisible_watermark_detected`, `encrypted_watermark_detected`, plus the stored metadata (encrypted watermark ID, hashes, links, etc.).  
+- If no match exists, all detection flags are `false` with guidance to provide the protected copy.

@@ -134,26 +134,21 @@ async def detect_watermark(
         )
 
     sha256_digest = compute_sha256(raw_bytes)
-    phash_value = compute_phash(raw_bytes)
-
     asset = (
         db.query(ProtectedAsset)
         .filter(ProtectedAsset.sha256 == sha256_digest)
         .first()
     )
-    if asset is None:
-        asset = (
-            db.query(ProtectedAsset)
-            .filter(ProtectedAsset.phash == phash_value)
-            .first()
-        )
 
     if asset is None:
         return WatermarkDetectionResponse(
             watermark_detected=False,
             invisible_watermark_detected=False,
             encrypted_watermark_detected=False,
-            message="No stored watermark metadata matched this image.",
+            message=(
+                "No protected asset matched this file. "
+                "Upload the watermarked copy from /static/protected to detect."
+            ),
         )
 
     return WatermarkDetectionResponse(
