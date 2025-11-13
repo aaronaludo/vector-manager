@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from database import engine, get_db
-from routers import documents_router
 
 
 ALLOWED_ORIGINS = ["http://localhost:5173"]
@@ -17,8 +16,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(documents_router)
-
 
 @app.get("/")
 def read_root():
