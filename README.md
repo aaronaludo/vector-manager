@@ -26,3 +26,5 @@ Form fields:
 - `google_drive_url`: optional URL reference supplied by the user
 
 Response contains the stored asset identifiers plus a base64-encoded copy of the watermarked image; the service does **not** persist the original upload.
+
+- A watermarked PNG is written to `fastapi-art-protection/static/protected/<uuid>.png`, and FastAPI serves it at `/static/protected/<uuid>.png`. The `image_link` field points to that path so the protected file can be accessed directly once the app is running.

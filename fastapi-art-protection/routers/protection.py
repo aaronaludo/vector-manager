@@ -6,6 +6,7 @@ import uuid
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from pathlib import Path
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -15,6 +16,12 @@ from services.crypto import encrypt_watermark_id
 from services.watermark import compute_phash, compute_sha256, embed_invisible_watermark
 
 router = APIRouter(prefix="/protection", tags=["protection"])
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+STATIC_DIR = ROOT_DIR / "static"
+PROTECTED_DIR = STATIC_DIR / "protected"
+PROTECTED_DIR.mkdir(parents=True, exist_ok=True)
+STATIC_PROTECTED_URL = "/static/protected"
 
 SUPPORTED_IMAGE_TYPES = {
     "image/jpeg",
@@ -55,6 +62,11 @@ async def upload_protected_image(
     sha256_digest = compute_sha256(watermarked_bytes)
     phash_value = compute_phash(watermarked_bytes)
     encrypted_identifier = encrypt_watermark_id(watermark_id)
+    encoded_image = base64.b64encode(watermarked_bytes).decode("utf-8")
+    file_name = f"{uuid.uuid4()}.png"
+    file_path = PROTECTED_DIR / file_name
+    file_path.write_bytes(watermarked_bytes)
+    image_link = f"{STATIC_PROTECTED_URL}/{file_name}"
 
     asset = ProtectedAsset(
         encrypted_watermark_id=encrypted_identifier,
@@ -62,17 +74,18 @@ async def upload_protected_image(
         phash=phash_value,
         user_metadata=user_metadata,
         google_drive_url=google_drive_url,
+        image_link=image_link,
     )
     db.add(asset)
     db.commit()
     db.refresh(asset)
 
-    encoded_image = base64.b64encode(watermarked_bytes).decode("utf-8")
     return ProtectedAssetResponse(
         asset_id=asset.id,
         encrypted_watermark_id=asset.encrypted_watermark_id,
         sha256=asset.sha256,
         phash=asset.phash,
+        image_link=asset.image_link,
         google_drive_url=asset.google_drive_url,
         user_metadata=asset.user_metadata,
         watermarked_image_b64=encoded_image,

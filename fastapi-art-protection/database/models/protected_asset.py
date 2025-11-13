@@ -22,4 +22,5 @@ class ProtectedAsset(Base):
     phash = Column(String(64), nullable=False)
     user_metadata = Column(JSONB, nullable=True)
     google_drive_url = Column(String, nullable=True)
+    image_link = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
