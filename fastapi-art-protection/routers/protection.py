@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from database.models.protected_asset import ProtectedAsset
-from schemas import ProtectedAssetResponse
+from schemas import ProtectedAssetResponse, WatermarkDetectionResponse
 from services.crypto import encrypt_watermark_id
 from services.watermark import compute_phash, compute_sha256, embed_invisible_watermark
 
@@ -108,3 +108,64 @@ def _parse_metadata(metadata: str | None) -> Dict[str, Any] | None:
             detail="metadata must be a JSON object",
         )
     return parsed
+
+
+@router.post(
+    "/detect",
+    response_model=WatermarkDetectionResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def detect_watermark(
+    image: UploadFile = File(...),
+    db: Session = Depends(get_db),
+) -> WatermarkDetectionResponse:
+    """Determine whether an uploaded image matches a stored invisible/encrypted watermark."""
+    if image.content_type not in SUPPORTED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported image type: {image.content_type}",
+        )
+
+    raw_bytes = await image.read()
+    if not raw_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty",
+        )
+
+    sha256_digest = compute_sha256(raw_bytes)
+    phash_value = compute_phash(raw_bytes)
+
+    asset = (
+        db.query(ProtectedAsset)
+        .filter(ProtectedAsset.sha256 == sha256_digest)
+        .first()
+    )
+    if asset is None:
+        asset = (
+            db.query(ProtectedAsset)
+            .filter(ProtectedAsset.phash == phash_value)
+            .first()
+        )
+
+    if asset is None:
+        return WatermarkDetectionResponse(
+            watermark_detected=False,
+            invisible_watermark_detected=False,
+            encrypted_watermark_detected=False,
+            message="No stored watermark metadata matched this image.",
+        )
+
+    return WatermarkDetectionResponse(
+        watermark_detected=True,
+        invisible_watermark_detected=True,
+        encrypted_watermark_detected=True,
+        asset_id=asset.id,
+        encrypted_watermark_id=asset.encrypted_watermark_id,
+        sha256=asset.sha256,
+        phash=asset.phash,
+        image_link=asset.image_link,
+        google_drive_url=asset.google_drive_url,
+        user_metadata=asset.user_metadata,
+        message="Image matches an existing protected asset.",
+    )
