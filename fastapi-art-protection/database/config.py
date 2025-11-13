@@ -6,6 +6,7 @@ class Settings(BaseSettings):
         "postgresql+psycopg2://vector_user:vector_pass@localhost:5432/vector_db"
     )
     gemini_api_key: str | None = None
+    watermark_encryption_key: str | None = None
 
     class Config:
         env_file = ".env"

@@ -1,3 +1,5 @@
-from .document import DocumentCreate, DocumentRead, DocumentUpdate
+from .protected_asset import ProtectedAssetResponse
 
-__all__ = ["DocumentCreate", "DocumentRead", "DocumentUpdate"]
+__all__ = [
+    "ProtectedAssetResponse",
+]

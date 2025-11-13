@@ -1,3 +1,5 @@
-from .documents import router as documents_router
+from . import protection
 
-__all__ = ["documents_router"]
+__all__ = [
+    "protection",
+]

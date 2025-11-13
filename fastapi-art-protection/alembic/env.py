@@ -13,6 +13,7 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 
 from database.config import settings
 from database.session import Base
+import database.models  # noqa: F401 ensure models are imported for Alembic
 
 # Alembic Config object, provides access to values within alembic.ini
 config = context.config

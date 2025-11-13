@@ -8,3 +8,7 @@ pydantic
 pydantic-settings
 google-generativeai
 alembic
+numpy
+Pillow
+cryptography
+python-multipart
